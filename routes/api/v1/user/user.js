@@ -13,13 +13,13 @@ const partialProjection = fullProjection + ' -email -birthday';
 // Register User
 router.post('/', async function(req, res, next) {
   const body = req.body;
-
+  console.log(body);
   const user = new User({
     email: body['email'],
     password: body['password'],
-    firstName: body['first-name'],
-    secondName: body['second-name'],
-    lastName: body['last-name'],
+    firstName: body['firstName'],
+    secondName: body['secondName'],
+    lastName: body['lastName'],
     birthday: Date.parse(body['birthday']),
   });
 
