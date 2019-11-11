@@ -10,7 +10,6 @@ const User = mongoose.model('User');
 // Generate JWT
 router.post('/getToken', async function(req, res, next) {
   const {email, password} = req.body;
-
   try {
     const user = await User.findOne({email});
 
@@ -23,7 +22,7 @@ router.post('/getToken', async function(req, res, next) {
       expiresIn: '6h',
     });
 
-    res.cookie('token', token, {httpOnly: true});
+    res.cookie('token', token);
 
     res.json({status: 'success'});
   } catch (err) {
