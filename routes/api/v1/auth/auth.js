@@ -22,9 +22,7 @@ router.post('/getToken', async function(req, res, next) {
       expiresIn: '6h',
     });
 
-    res.cookie('token', token);
-
-    res.json({status: 'success'});
+    res.json({status: 'success', data: {token: token}});
   } catch (err) {
     next(err);
   }
