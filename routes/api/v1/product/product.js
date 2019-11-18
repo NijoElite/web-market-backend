@@ -5,6 +5,20 @@ const errors = require('../../../../helpers/errors');
 
 const Product = mongoose.model('Product');
 
+// Get Latest Products
+router.get('/latest', async function(req, res, next) {
+  const countPerPage = 20;
+  const {page = 0} = req.query;
+  try {
+    const skip = page * countPerPage;
+    const products = await Product.find({}).skip(skip).limit(countPerPage);
+    res.json(products);
+  } catch (err) {
+    next(err);
+  }
+});
+
+
 // Get Product Data
 router.get('/:article', async function(req, res, next) {
   const {article} = req.params;
