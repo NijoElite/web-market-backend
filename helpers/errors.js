@@ -28,4 +28,18 @@ const authenticationError = {
     message: 'Wrong email or password'}],
 };
 
-module.exports = {forbidden, userNotFound, wrongRequest, authenticationError};
+const productNotFound = {
+  status: 'error',
+  errors: [{
+    name: 'ProductNotFound',
+    message: 'Product Not Found',
+  }],
+};
+
+module.exports = {
+  forbidden,
+  userNotFound,
+  wrongRequest,
+  authenticationError,
+  productNotFound,
+};

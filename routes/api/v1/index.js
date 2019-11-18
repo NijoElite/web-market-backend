@@ -5,6 +5,7 @@ const router = new express.Router();
 
 router.use('/auth', require('./auth/auth'));
 router.use('/user', require('./user/user'));
+router.use('/product', require('./product/product'));
 
 // Validation Errors
 router.use(function(err, req, res, next) {
