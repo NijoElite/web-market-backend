@@ -14,7 +14,10 @@ router.get('/latest', async function(req, res, next) {
   try {
     const skip = page * countPerPage;
     const products = await Product.find({}).skip(skip).limit(countPerPage);
-    res.json(products);
+    res.json({
+      status: 'success',
+      data: products,
+    });
   } catch (err) {
     next(err);
   }
