@@ -29,7 +29,6 @@ const productSchema = new mongoose.Schema({
   requirements: [{
     option: String,
     value: String,
-    default: [],
   }],
 
   publisher: String,

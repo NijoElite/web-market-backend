@@ -5,6 +5,11 @@ const orderItemSchema = new mongoose.Schema({
     type: String,
     required: [true, 'can\'t be blank'],
   },
+  seller: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'User',
+    required: [true, 'can\'t be blank'],
+  },
   qty: {
     type: Number,
     required: [true, 'can\'t be blank'],
@@ -13,20 +18,19 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'can\'t be blank'],
   },
+  isPaid: Boolean,
 });
 
 const orderSchema = new mongoose.Schema({
   customer: {
     type: mongoose.SchemaTypes.ObjectId,
+    ref: 'User',
     required: [true, 'can\'t be blank'],
   },
 
   items: [{
     type: orderItemSchema,
   }],
-
-  isPaid: Boolean,
-  isCompleted: Boolean,
 }, {timestamps: true});
 
 

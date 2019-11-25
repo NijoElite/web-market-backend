@@ -2,9 +2,11 @@ const express = require('express');
 const router = new express.Router();
 const mongoose = require('mongoose');
 const auth = require('../../../../middlewares/auth');
+const errors = require('../../../../helpers/errors');
 
 const Product = mongoose.model('Product');
 const Order = mongoose.model('Order');
+const User = mongoose.model('User');
 
 // Create Order
 router.post('/', auth.required, async function(req, res, next) {
@@ -13,14 +15,16 @@ router.post('/', auth.required, async function(req, res, next) {
   try {
     for (item of items) {
       const product = await Product.findOne({article: item.article});
+      if (!product) continue;
+
       item.price = product.price;
+      item.seller = product.owner;
+      item.isPaid = false;
     }
 
     const order = new Order({
       items: items,
       customer: req.userId,
-      isPaid: false,
-      isCompleted: false,
     });
 
     await order.save();
@@ -35,5 +39,55 @@ router.post('/', auth.required, async function(req, res, next) {
     next(err);
   }
 });
+
+router.get('/user', auth.required, async function(req, res, next) {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user || !user.role.includes('user')) {
+      return res.json(errors.forbidden);
+    }
+
+    const orders = await Order.find({customer: req.userId});
+
+    res.json({
+      status: 'success',
+      data: orders,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/customer', auth.required, async function(req, res, next) {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user || !user.role.includes('customer')) {
+      return res.json(errors.forbidden);
+    }
+
+    const orders = await Order.find({
+      items: {
+        $elemMatch: {
+          seller: user._id,
+        },
+      },
+    });
+
+    for (const order of orders) {
+      order.items = order.items.filter((item) => {
+        return item.seller.toString() === user._id.toString();
+      });
+    }
+
+    res.json({
+      status: 'success',
+      data: orders,
+    });
+  } catch (err) {
+    next(err);
+  }
+} );
 
 module.exports = router;
