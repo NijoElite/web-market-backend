@@ -88,6 +88,44 @@ router.get('/customer', auth.required, async function(req, res, next) {
   } catch (err) {
     next(err);
   }
-} );
+});
+
+router.post('/changeStatus', auth.required, async function(req, res, next) {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user || !user.role.includes('customer')) {
+      return res.json(errors.forbidden);
+    }
+
+    const order = await Order.findById(req.body.order);
+
+    if (!order) {
+      return res.json(errors.orderNotFound);
+    }
+
+    const item = order.items.find((item) => item.article === req.body.article);
+
+    if (!item) {
+      return res.json(errors.orderNotFound);
+    }
+
+    if (typeof req.body.status === 'undefined') {
+      return res.json(errors.wrongRequest);
+    }
+
+    item.isPaid = !!req.body.status;
+
+    await order.save();
+
+    const orderData = order.toObject();
+    res.json({
+      status: 'success',
+      data: {...orderData},
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = router;

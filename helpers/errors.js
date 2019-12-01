@@ -36,10 +36,19 @@ const productNotFound = {
   }],
 };
 
+const orderNotFound = {
+  status: 'error',
+  errors: [{
+    name: 'OrderNotFound',
+    message: 'Order Not Found',
+  }],
+};
+
 module.exports = {
   forbidden,
   userNotFound,
   wrongRequest,
   authenticationError,
   productNotFound,
+  orderNotFound,
 };
