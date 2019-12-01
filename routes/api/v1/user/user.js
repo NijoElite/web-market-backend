@@ -63,7 +63,7 @@ router.post('/delete', auth.required, async function(req, res, next) {
 });
 
 // Update User Data
-router.post('/update', async function(req, res, next) {
+router.post('/update', auth.required, async function(req, res, next) {
   const {id, ...params} = req.body;
 
   if (id !== req.userId) {
