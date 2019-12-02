@@ -23,25 +23,24 @@ router.get('/latest', async function(req, res, next) {
   }
 });
 
-// Get Product Data
-router.get('/:article', async function(req, res, next) {
-  const {article} = req.params;
+
+// Get Own Products
+router.get('/own', auth.required, async function(req, res, next) {
+  const {userId} = req;
 
   try {
     const fields = 'article owner name description price requirements' +
     'publisher releaseDate sliderImage defaultImage rating genres';
 
-    const product = await Product.findOne({article}, fields).lean();
+    const products = await Product.find({owner: userId}, fields).lean();
 
-    if (!product) {
+    if (!products) {
       return res.json(errors.productNotFound);
     }
 
     res.json({
       status: 'success',
-      data: {
-        ...product,
-      },
+      data: [...products],
     });
   } catch (err) {
     next(err);
@@ -84,6 +83,31 @@ router.post('/', auth.required, async function(req, res, next) {
       status: 'success',
       data: {
         productId: product._id,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get Product Data
+router.get('/:article', async function(req, res, next) {
+  const {article} = req.params;
+
+  try {
+    const fields = 'article owner name description price requirements' +
+    'publisher releaseDate sliderImage defaultImage rating genres';
+
+    const product = await Product.findOne({article}, fields).lean();
+
+    if (!product) {
+      return res.json(errors.productNotFound);
+    }
+
+    res.json({
+      status: 'success',
+      data: {
+        ...product,
       },
     });
   } catch (err) {
