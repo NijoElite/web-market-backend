@@ -29,7 +29,7 @@ router.get('/own', auth.required, async function(req, res, next) {
   const {userId} = req;
 
   try {
-    const fields = 'article owner name description price requirements' +
+    const fields = 'article owner name description price requirements ' +
     'publisher releaseDate sliderImage defaultImage rating genres';
 
     const products = await Product.find({owner: userId}, fields).lean();
