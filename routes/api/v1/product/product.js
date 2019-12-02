@@ -51,7 +51,6 @@ router.get('/:article', async function(req, res, next) {
 // Create Product
 router.post('/', auth.required, async function(req, res, next) {
   const {
-    article,
     name,
     description,
     price,
@@ -59,9 +58,12 @@ router.post('/', auth.required, async function(req, res, next) {
     releaseDate,
     sliderImage,
     defaultImage,
-    genres: genresStr = '',
+    requirements,
+    genres,
   } = req.body;
-  const genres = genresStr.split(',');
+
+  const article = name + '-' + Date.now().toString(16);
+
   const ownerId = req.userId;
 
   try {
@@ -71,8 +73,11 @@ router.post('/', auth.required, async function(req, res, next) {
       return res.json(errors.forbidden);
     }
 
-    const product = new Product({owner, article, name, description,
-      price, publisher, releaseDate, sliderImage, defaultImage, genres});
+    const product = new Product({
+      requirements, owner, article, name, description,
+      price, publisher, releaseDate, sliderImage,
+      defaultImage, genres});
+
     await product.save();
 
     res.json({
