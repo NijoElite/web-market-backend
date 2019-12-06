@@ -115,10 +115,13 @@ router.get('/stats/:article', async function(req, res, next) {
     const paidCost = orderItems.reduce((acc, item) => item.isPaid ? acc + item.price * item.qty : acc, 0);
 
     res.json({
-      totalQty,
-      totalCost,
-      paidQty,
-      paidCost,
+      status: 'success',
+      data: {
+        totalQty,
+        totalCost,
+        paidQty,
+        paidCost,
+      },
     });
   } catch (err) {
     next(err);
