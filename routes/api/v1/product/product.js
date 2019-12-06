@@ -6,6 +6,7 @@ const auth = require('../../../../middlewares/auth');
 
 const Product = mongoose.model('Product');
 const User = mongoose.model('User');
+const Order = mongoose.model('Order');
 
 // Get Latest Products
 router.get('/latest', async function(req, res, next) {
@@ -84,6 +85,40 @@ router.post('/', auth.required, async function(req, res, next) {
       data: {
         productId: product._id,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get Statistic
+router.get('/stats/:article', async function(req, res, next) {
+  const {article} = req.params;
+
+  try {
+    const orders = await Order.find({
+      items: {
+        $elemMatch: {
+          article: article,
+        },
+      },
+    });
+
+    const orderItems = orders.map((order) => {
+      return order.items.filter((orderItem) => orderItem.article === article);
+    }).reduce((acc, arr) => acc.concat(arr), []);
+
+    const totalQty = orderItems.reduce((acc, item) => acc + item.qty, 0);
+    const totalCost = orderItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+    const paidQty = orderItems.reduce((acc, item) => item.isPaid ? acc + item.qty : acc, 0);
+    const paidCost = orderItems.reduce((acc, item) => item.isPaid ? acc + item.price * item.qty : acc, 0);
+
+    res.json({
+      totalQty,
+      totalCost,
+      paidQty,
+      paidCost,
     });
   } catch (err) {
     next(err);
