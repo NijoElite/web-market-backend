@@ -7,6 +7,7 @@ router.use('/auth', require('./auth/auth'));
 router.use('/user', require('./user/user'));
 router.use('/product', require('./product/product'));
 router.use('/order', require('./order/order'));
+router.use('/upload', require('./upload/upload'));
 
 // Validation Errors
 router.use(function(err, req, res, next) {
