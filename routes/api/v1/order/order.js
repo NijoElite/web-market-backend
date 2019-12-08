@@ -40,6 +40,7 @@ router.post('/', auth.required, async function(req, res, next) {
   }
 });
 
+// Get Orders For User
 router.get('/user', auth.required, async function(req, res, next) {
   try {
     const user = await User.findById(req.userId);
@@ -48,7 +49,8 @@ router.get('/user', auth.required, async function(req, res, next) {
       return res.json(errors.forbidden);
     }
 
-    const orders = await Order.find({customer: req.userId});
+    const orders = await Order.find({customer: req.userId}).
+        populate('items.seller');
 
     res.json({
       status: 'success',
@@ -59,6 +61,7 @@ router.get('/user', auth.required, async function(req, res, next) {
   }
 });
 
+// Get Orders For Seller
 router.get('/customer', auth.required, async function(req, res, next) {
   try {
     const user = await User.findById(req.userId);
@@ -73,7 +76,7 @@ router.get('/customer', auth.required, async function(req, res, next) {
           seller: user._id,
         },
       },
-    });
+    }).populate('customer');
 
     for (const order of orders) {
       order.items = order.items.filter((item) => {
@@ -91,6 +94,10 @@ router.get('/customer', auth.required, async function(req, res, next) {
 });
 
 router.post('/changeStatus', auth.required, async function(req, res, next) {
+  if (typeof req.body.status === 'undefined') {
+    return res.json(errors.wrongRequest);
+  }
+
   try {
     const user = await User.findById(req.userId);
 
@@ -98,7 +105,7 @@ router.post('/changeStatus', auth.required, async function(req, res, next) {
       return res.json(errors.forbidden);
     }
 
-    const order = await Order.findById(req.body.order);
+    const order = await Order.findById(req.body.order).populate('customer');
 
     if (!order) {
       return res.json(errors.orderNotFound);
@@ -108,10 +115,6 @@ router.post('/changeStatus', auth.required, async function(req, res, next) {
 
     if (!item) {
       return res.json(errors.orderNotFound);
-    }
-
-    if (typeof req.body.status === 'undefined') {
-      return res.json(errors.wrongRequest);
     }
 
     item.isPaid = !!req.body.status;

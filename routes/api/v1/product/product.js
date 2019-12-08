@@ -91,9 +91,56 @@ router.post('/', auth.required, async function(req, res, next) {
   }
 });
 
-// Get Statistic
+// Edit Product
+router.post('/edit/:article', auth.required, async function(req, res, next) {
+  const {
+    name,
+    description,
+    price,
+    publisher,
+    releaseDate,
+    sliderImage,
+    defaultImage,
+    requirements,
+    genres,
+  } = req.body;
+
+  const {article} = req.params;
+
+  try {
+    const product = await Product.findOne({article});
+
+    if (product.owner.toString() !== req.userId) {
+      return res.json(errors.forbidden);
+    }
+
+    await product.update({
+      name,
+      description,
+      price,
+      publisher,
+      releaseDate,
+      sliderImage,
+      defaultImage,
+      requirements,
+      genres,
+    });
+
+    await product.save();
+
+    res.json({
+      status: 'success',
+      data: product,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Get Statistic FIXME: auth
 router.get('/stats/:article', async function(req, res, next) {
   const {article} = req.params;
+  const {endDate = new Date('1970-01-01'), startDate = new Date()} = req.query;
 
   try {
     const orders = await Order.find({
@@ -101,6 +148,10 @@ router.get('/stats/:article', async function(req, res, next) {
         $elemMatch: {
           article: article,
         },
+      },
+      createdAt: {
+        $gte: startDate,
+        $lte: endDate,
       },
     });
 
@@ -161,7 +212,7 @@ router.get('/:article', async function(req, res, next) {
   const {article} = req.params;
 
   try {
-    const fields = 'article owner name description price requirements' +
+    const fields = 'article owner name description price requirements ' +
     'publisher releaseDate sliderImage defaultImage rating genres';
 
     const product = await Product.findOne({article}, fields).lean();
