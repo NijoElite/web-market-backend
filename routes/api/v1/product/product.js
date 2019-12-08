@@ -108,11 +108,15 @@ router.get('/stats/:article', async function(req, res, next) {
       return order.items.filter((orderItem) => orderItem.article === article);
     }).reduce((acc, arr) => acc.concat(arr), []);
 
-    const totalQty = orderItems.reduce((acc, item) => acc + item.qty, 0);
-    const totalCost = orderItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+    const totalQty = orderItems.
+        reduce((acc, item) => acc + item.qty, 0);
+    const totalCost = orderItems.
+        reduce((acc, item) => acc + item.price * item.qty, 0);
 
-    const paidQty = orderItems.reduce((acc, item) => item.isPaid ? acc + item.qty : acc, 0);
-    const paidCost = orderItems.reduce((acc, item) => item.isPaid ? acc + item.price * item.qty : acc, 0);
+    const paidQty = orderItems.filter((item) => item.isPaid).
+        reduce((acc, item) => acc + item.qty, 0);
+    const paidCost = orderItems.filter((item) => item.isPaid).
+        reduce((acc, item) => acc + item.price * item.qty, 0);
 
     res.json({
       status: 'success',
@@ -122,6 +126,30 @@ router.get('/stats/:article', async function(req, res, next) {
         paidQty,
         paidCost,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Delete Product
+router.post('/delete/:article', async function(req, res, next) {
+  const {article} = req.params;
+
+  try {
+    const product = await Product.findOne({article});
+
+    if (!product) {
+      return res.json(errors.productNotFound);
+    }
+
+    product.isOnSale = false;
+
+    await product.save();
+
+    res.json({
+      status: 'success',
+      data: product,
     });
   } catch (err) {
     next(err);

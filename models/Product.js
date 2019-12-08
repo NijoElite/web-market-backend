@@ -39,17 +39,10 @@ const productSchema = new mongoose.Schema({
 
   defaultImage: String,
 
-  votes: [{
-    user: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: 'User',
-    },
-    mark: {
-      type: Number, // TODO: add validator
-    },
-  }],
-
-  rating: Number,
+  isOnSale: {
+    type: String,
+    default: true,
+  },
 
   genres: [String],
 });
