@@ -31,7 +31,7 @@ router.get('/own', auth.required, async function(req, res, next) {
 
   try {
     const fields = 'article owner name description price requirements ' +
-    'publisher releaseDate sliderImage defaultImage rating genres';
+    'publisher releaseDate sliderImage defaultImage rating genres isOnSale';
 
     const products = await Product.find({owner: userId}, fields).lean();
 
@@ -183,9 +183,10 @@ router.get('/stats/:article', async function(req, res, next) {
   }
 });
 
-// Delete Product
-router.post('/delete/:article', async function(req, res, next) {
+// On sale Product
+router.post('/sale/:article', async function(req, res, next) {
   const {article} = req.params;
+  const {status = false} = req.body;
 
   try {
     const product = await Product.findOne({article});
@@ -194,7 +195,7 @@ router.post('/delete/:article', async function(req, res, next) {
       return res.json(errors.productNotFound);
     }
 
-    product.isOnSale = false;
+    product.isOnSale = status;
 
     await product.save();
 
@@ -213,7 +214,7 @@ router.get('/:article', async function(req, res, next) {
 
   try {
     const fields = 'article owner name description price requirements ' +
-    'publisher releaseDate sliderImage defaultImage rating genres';
+    'publisher releaseDate sliderImage defaultImage rating genres isOnSale';
 
     const product = await Product.findOne({article}, fields).lean();
 
